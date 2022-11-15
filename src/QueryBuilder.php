@@ -121,11 +121,9 @@ class QueryBuilder
         return $this;
     }
 
-    public function get(?string $fetchedClass = null)
+    public function get()
     {
         if (is_string($this->persist())) return $this->unexpectedError;
-
-        if ($fetchedClass) return $this->preparedStatement->fetch(PDO::FETCH_CLASS, $fetchedClass);
 
         return $this->preparedStatement->fetch();
     }
@@ -149,11 +147,14 @@ class QueryBuilder
             $this->preparedStatement = $this->pdo->prepare($this->query);
             return $this;
         } catch (PDOException $e) {
-//            $this->unexpectedError = "Une erreur est survenue lors du traitement de la requête SQL : " . $e->getMessage();
-            $this->unexpectedError = "Une erreur est survenue lors du traitement de la requête SQL : " . $e->getMessage();
+            $this->unexpectedError = "Une erreur est survenue lors du traitement de la requête SQL : {$e->getMessage()}";
         }
     }
 
+    /**
+     * Comme son nom l'indique, elle permet de retourner une chaine de caractere a partir du builder
+     * @return string
+     */
     public function toSQL(): string
     {
         $query = $this->query;
@@ -219,11 +220,9 @@ class QueryBuilder
         return $this->query;
     }
 
-    public function getAll(?string $fetchedClass = null): array|string
+    public function getAll(): array|string
     {
         if (is_string($this->persist())) return $this->unexpectedError;
-
-        if ($fetchedClass) return $this->preparedStatement->fetchAll(PDO::FETCH_CLASS, $fetchedClass);
 
         return $this->preparedStatement->fetchAll();
 
