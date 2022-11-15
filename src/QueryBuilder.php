@@ -17,25 +17,25 @@ class QueryBuilder
 
     private array $fields = ['*'];
 
-    private ?string $where;
+    private ?string $where = '';
 
-    private ?string $innerJoin;
+    private ?string $innerJoin = '';
 
-    private ?string $leftJoin;
+    private ?string $leftJoin = '';
 
-    private ?string $rightJoin;
+    private ?string $rightJoin = '';
 
     private ?array $params = [];
 
-    private ?string $groupBy;
+    private ?string $groupBy = '';
 
-    private ?string $having;
+    private ?string $having = '';
 
-    private ?string $orderBy;
+    private ?string $orderBy = '';
 
-    private ?int $limit;
+    private ?int $limit = 0;
 
-    private ?int $offset;
+    private ?int $offset = 0;
 
     private PDO $pdo;
 
@@ -207,11 +207,11 @@ class QueryBuilder
             $query .= " ORDER BY {$this->orderBy}";
         }
 
-        if ($this->limit) {
+        if ($this->limit !== 0) {
             $query .= " LIMIT {$this->limit}";
         }
 
-        if ($this->offset) {
+        if ($this->offset !== 0) {
             $query .= " OFFSET {$this->offset}";
         }
 
