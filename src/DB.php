@@ -23,7 +23,7 @@ class DB
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             ]);
         } catch (PDOException $e) {
-            echo "Une erreur est survenue lors de la connexion à la base données : " . $e->getMessage();
+            echo "Une erreur est survenue lors de la connexion à la base données : {$e->getMessage()}";
             exit();
         }
     }
