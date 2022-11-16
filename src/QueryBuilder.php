@@ -17,25 +17,25 @@ class QueryBuilder
 
     private array $fields = ['*'];
 
-    private ?string $where = '';
+    private ?string $where;
 
-    private ?string $innerJoin = '';
+    private ?string $innerJoin;
 
-    private ?string $leftJoin = '';
+    private ?string $leftJoin;
 
-    private ?string $rightJoin = '';
+    private ?string $rightJoin;
 
-    private ?array $params = [];
+    private ?array $params;
 
-    private ?string $groupBy = '';
+    private ?string $groupBy;
 
-    private ?string $having = '';
+    private ?string $having;
 
-    private ?string $orderBy = '';
+    private ?string $orderBy;
 
-    private ?int $limit = 0;
+    private ?int $limit;
 
-    private ?int $offset = 0;
+    private ?int $offset;
 
     private PDO $pdo;
 
@@ -45,8 +45,8 @@ class QueryBuilder
 
     public function __construct(PDO $pdo, string $query = 'SELECT')
     {
-        $this->query = strtoupper($query);
         $this->pdo = $pdo;
+        $this->init($query);
     }
 
     public function from(string ...$table): self
@@ -236,14 +236,23 @@ class QueryBuilder
      */
     public function reset(?string $query = 'SELECT'): self
     {
-        foreach ($this as $k => $v) {
-            if (!in_array($k, ['pdo', 'query', 'fields', 'params'])) {
-                unset($this->$k);
-            }
-        }
-        $this->query = $query;
-        $this->fields = ['*'];
-        $this->params = [];
+        $this->init();
         return $this;
+    }
+
+    private function init(?string $query = 'SELECT') {
+        $this->query = strtoupper($query);
+        $this->where = '';
+        $this->innerJoin = '';
+        $this->leftJoin = '';
+        $this->rightJoin = '';
+        $this->params = [];
+        $this->fields = ['*'];
+        $this->groupBy = '';
+        $this->having = '';
+        $this->orderBy = '';
+        $this->limit = 0;
+        $this->offset = 0;
+        unset($this->from);
     }
 }
