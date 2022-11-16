@@ -15,7 +15,7 @@ class QueryBuilder
 
     private string $from;
 
-    private array $fields = ['*'];
+    private array $fields;
 
     private ?string $where;
 
