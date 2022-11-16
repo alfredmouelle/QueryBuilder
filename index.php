@@ -29,7 +29,7 @@ for ($i = 1; $i <= 10; $i++) {
 // $pdo->query('DROP TABLE users');
 
 $builder = new QueryBuilder($pdo, 'delete');
-// $builder->from('users')->where('id = ?')->setParams([4])->persist();
+// $builder->from('users')->where('id = ?')->setParams([1])->persist();
 
-$users = $builder->reset()->from('users')->getAll();
+$users = $builder->from('users')->getAll();
 dump($users);

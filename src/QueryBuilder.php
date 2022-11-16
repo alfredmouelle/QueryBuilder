@@ -11,7 +11,7 @@ use PDOStatement;
 class QueryBuilder
 {
 
-    private string $query;
+    private string $statement;
 
     private string $from;
 
@@ -40,8 +40,6 @@ class QueryBuilder
     private PDO $pdo;
 
     private ?PDOStatement $preparedStatement = null;
-
-    private ?string $unexpectedError;
 
     public function __construct(PDO $pdo, string $query = 'SELECT')
     {
@@ -123,16 +121,17 @@ class QueryBuilder
 
     public function get()
     {
-        if (is_string($this->persist())) return $this->unexpectedError;
-
-        return $this->preparedStatement->fetch();
+        $this->executeQuery();
+        $statement = $this->preparedStatement;
+        $this->reset();
+        return $statement->fetch();
     }
 
     public function persist()
     {
-        if ($this->prepareQuery() instanceof $this) return $this->preparedStatement->execute($this->params);
-
-        return $this->unexpectedError;
+        $executed = $this->executeQuery();
+        $this->reset();
+        return $executed;
 
     }
 
@@ -144,11 +143,17 @@ class QueryBuilder
     {
         try {
             $this->toSQL();
-            $this->preparedStatement = $this->pdo->prepare($this->query);
+            $this->preparedStatement = $this->pdo->prepare($this->statement);
             return $this;
         } catch (PDOException $e) {
-            $this->unexpectedError = "Une erreur est survenue lors du traitement de la requête SQL : {$e->getMessage()}";
+            throw new PDOException("Une erreur est survenue lors du traitement de la requête SQL : {$e->getMessage()}");
         }
+    }
+
+    private function executeQuery()
+    {
+        $this->prepareQuery();
+        return $this->preparedStatement->execute($this->params);
     }
 
     /**
@@ -157,7 +162,7 @@ class QueryBuilder
      */
     public function toSQL(): string
     {
-        $query = $this->query;
+        $query = $this->statement;
         $implodedFields = implode(', ', $this->fields);
         switch ($query) {
             case 'INSERT':
@@ -216,15 +221,16 @@ class QueryBuilder
             $query .= " OFFSET {$this->offset}";
         }
 
-        $this->query = $query;
-        return $this->query;
+        $this->statement = $query;
+        return $this->statement;
     }
 
-    public function getAll(): array|string
+    public function getAll(): array
     {
-        if (is_string($this->persist())) return $this->unexpectedError;
-
-        return $this->preparedStatement->fetchAll();
+        $this->executeQuery();
+        $statement = $this->preparedStatement;
+        $this->reset();
+        return $statement->fetchAll();
 
     }
 
@@ -236,12 +242,12 @@ class QueryBuilder
      */
     public function reset(?string $query = 'SELECT'): self
     {
-        $this->init();
+        $this->init($query);
         return $this;
     }
 
     private function init(?string $query = 'SELECT') {
-        $this->query = strtoupper($query);
+        $this->statement = strtoupper($query);
         $this->where = '';
         $this->innerJoin = '';
         $this->leftJoin = '';
@@ -253,6 +259,6 @@ class QueryBuilder
         $this->orderBy = '';
         $this->limit = 0;
         $this->offset = 0;
-        unset($this->from);
+        unset($this->from, $this->preparedStatement);
     }
 }
