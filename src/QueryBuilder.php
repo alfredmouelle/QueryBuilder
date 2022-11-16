@@ -119,6 +119,12 @@ class QueryBuilder
         return $this;
     }
 
+    public function query(string $queryString): self
+    {
+        $this->statement = $queryString;
+        return $this;
+    }
+
     public function get()
     {
         $this->executeQuery();
@@ -132,7 +138,6 @@ class QueryBuilder
         $executed = $this->executeQuery();
         $this->reset();
         return $executed;
-
     }
 
     /**

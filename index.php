@@ -10,26 +10,44 @@ if (is_string($pdo)) {
     exit();
 }
 
-// Si vous avez besoin de populer la base de données
+$builder = new QueryBuilder($pdo);
 
-/* $builder = new QueryBuilder($pdo, 'insert');
-$pdo->query("CREATE TABLE users(
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-    username VARCHAR NOT NULL, 
-    password VARCHAR NOT NULL)");
+function createUsersTable(QueryBuilder $builder) {
+    $builder->query("CREATE TABLE users(
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+        username VARCHAR NOT NULL, 
+        password VARCHAR NOT NULL)"
+    )->persist();
+}
 
-for ($i = 1; $i <= 10; $i++) {
-    $builder->from('users')
-        ->fields("username", 'password')
-        ->setParams(['username' => "user {$i}", 'password' => "1234"])
-        ->persist();
+function deleteUsersTable(QueryBuilder $builder) {
+    return $builder->query('DROP TABLE users')->persist();
+}
 
-} */
+function createDumpUsers(QueryBuilder $builder): array
+{
+    for ($i = 1; $i <= 10; $i++) {
+        $builder->reset('insert')->from('users')
+            ->fields("username", 'password')
+            ->setParams(['username' => "user {$i}", 'password' => "1234"])
+            ->persist();
+    
+    }
+    return $builder->from('users')->getAll();
+}
 
-// $pdo->query('DROP TABLE users');
+function getAllUsers(QueryBuilder $builder) {
+    return $builder->from('users')->getAll();
+}
 
-$builder = new QueryBuilder($pdo, 'delete');
-// $builder->from('users')->where('id = ?')->setParams([1])->persist();
+function deleteAllUsers(QueryBuilder $builder): bool
+{
+    return $builder->query('DROP TABLE users')->persist();
+}
 
-$users = $builder->from('users')->getAll();
-dump($users);
+
+// createUsersTable($builder);
+// createDumpUsers($builder);
+// deleteUsersTable($builder);
+
+dump(getAllUsers($builder));
